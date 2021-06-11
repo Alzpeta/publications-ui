@@ -5,12 +5,10 @@
 </template>
 
 <script>
-import { Component, Vue } from 'vue-property-decorator'
+import {Options, Vue} from 'vue-class-component'
 
-export default @Component({
+export default @Options({
   name: 'AdminLayout',
-  components: {
-  }
 })
 class AdminLayout extends Vue {
 }

@@ -1,89 +1,79 @@
 <template lang="pug">
-  q-header.row.z-top.no-wrap.navbar__header
-    q-toolbar.q-pl-xl.col-grow.no-padding
-      q-btn.on-right(
-        flat
-        rounded
-        dense
-        v-go-back.single
-        color="white"
-        icon="arrow_back"
-      )
-      q-btn.q-mx-md(
-        v-if="$route.meta.useFacets"
-        flat
-        @click="facets"
-        round
-        dense
-        icon="menu")
-      .col-1(v-else)
-      q-btn(
-        v-if="mode !== modes.LIST"
-        flat
-        rounded
-        dense
-        v-go-back.single
-        color="white"
-        icon="arrow_back")
-      q-btn(stretch flat :to="{ name: 'homepage' }")
-        img.navbar__logo.col-auto(
-          src="logos/datacare_White.svg")
-      q-toolbar-title.q-py-md.text-uppercase.text-weight-bold {{ productName }}
-      search-input.col-grow(@search="doSearch")
-      q-btn(
-        stretch
-        flat
-        icon="cloud_upload"
-        :to="{ name: 'draft-datasets/upload' }"
-        :label="$t('action.uploadDataset')")
-      router-link(to="/articles") Art
-      router-link(to="/datasets") Dat
-    q-toolbar.col-auto
-      q-space.q-ml-xl
-      account-dropdown(:authenticated="authenticated")
+q-header.row.z-top.no-wrap.navbar__header
+  q-toolbar.q-pl-xl.col-grow.no-padding
+    q-btn.on-right(
+      flat
+      rounded
+      dense
+      color="white"
+      icon="arrow_back"
+      @click="$router.back()"
+    )
+    sidebar-toggle-btn(:toggle="sidebarToggle")
+    q-btn(stretch flat :to="{ name: 'homepage' }")
+      img.navbar__logo.col-auto(
+        src="/logos/datacare_White.svg")
+    q-toolbar-title.q-py-md.text-uppercase.text-weight-bold {{ $t('app.productName') }}
+    search-input(v-if="route.meta.useFacets").col-grow
+    create-record-btn(color="white")
+    collection-toggle-btn
+  q-toolbar.col-auto
+    q-space.q-ml-xl
+    account-dropdown(:authenticated="authenticated")
 </template>
 
 <script>
-import { Component, Emit, Mixins } from 'vue-property-decorator'
-import AccountDropdown from 'components/account/AccountDropdown'
-import SearchInput from 'components/search/SearchInput'
-import { SearchMixin } from 'src/mixins/SearchMixin'
-import { AuthStateMixin } from 'src/mixins/AuthStateMixin'
+import {ARTICLES_COLLECTION_CODE, DATASETS_COLLECTION_CODE} from '@/constants'
+import AccountDropdown from '@/components/account/AccountDropdown'
+import {computed, defineComponent} from 'vue'
+import useAuth from '@/composables/useAuth'
+import SearchInput from '@/components/search/SearchInput'
+import {useContext} from 'vue-context-composition'
+import {useRoute} from 'vue-router'
+import CollectionToggleBtn from '@/components/widgets/button/CollectionToggleBtn'
+import SidebarToggleBtn from '@/components/widgets/button/SidebarToggleBtn'
 
-export const Modes = Object.freeze({ INTRO: 'intro', LIST: 'list', DETAIL: 'detail' })
-
-export default @Component({
+export default defineComponent({
   name: 'Navbar',
-  props: {
-    mode: {
-      type: String,
-      default: Modes.LIST,
-      validator: mode => Object.values(Modes).indexOf(mode) > -1
-    }
-  },
   components: {
-    SearchInput,
-    AccountDropdown
+    SidebarToggleBtn,
+    CollectionToggleBtn,
+    AccountDropdown,
+    SearchInput
+  },
+  setup() {
+    const route = useRoute()
+    const {authenticated} = useAuth()
+
+    const sidebarToggle = computed(() => {
+      if (route.meta.useFacets) {
+        const {facets} = require('@/contexts/facets')
+        const {toggleFacetsSidebar} = useContext(facets)
+        return toggleFacetsSidebar
+      } else if (route.meta.useRecordActions) {
+        const {record} = require('@/contexts/record')
+        const {toggleRecordSidebar} = useContext(record)
+        return toggleRecordSidebar
+      }
+      return null
+    })
+
+    return {
+      DATASETS_COLLECTION_CODE,
+      ARTICLES_COLLECTION_CODE,
+      authenticated,
+      route,
+      sidebarToggle,
+    }
   }
 })
-class Navbar extends Mixins(SearchMixin, AuthStateMixin) {
-  get modes () {
-    return Modes
-  }
-
-  get productName () {
-    return this.$i18n.t('app.productName')
-  }
-
-  @Emit('facets')
-  facets () { }
-}
 </script>
 
 <style lang="sass" scoped>
 .navbar
   &__header
-    background: linear-gradient(145deg, $primary 11%, $secondary 100%)
+    background: linear-gradient(145deg, var(--q-primary) 11%, var(--q-secondary) 100%)
+
   &__logo
     min-height: 50px
     max-height: 50px

@@ -1,0 +1,30 @@
+// It's highly recommended to change the default colors
+// to match your app's branding.
+@use "sass:meta"
+@import '~quasar-variables-styl'
+@import '~quasar-addon-styl'
+
+$primary: #0068a2
+$primary-light: lighten($primary, 5%)
+$primary-dark: darken($primary, 10%)
+$primary-darker: darken($primary, 13%)
+$secondary: #5a5a5a
+$secondary-dark: darken($secondary, 40%)
+$accent: #a70057
+$accent-dark: darken($accent, 40%)
+
+$dark: #1D1D1D
+
+$positive: #008547
+$positive-light: lighten($positive, 40%)
+$negative: #E60000
+$info: #00A1DE
+$warning: #FBB731
+
+:root
+  --q-primary-light: #{meta.inspect($primary-light)}
+  --q-primary-dark: #{meta.inspect($primary-dark)}
+  --q-primary-darker: #{meta.inspect($primary-darker)}
+  --q-secondary-dark: #{meta.inspect($secondary-dark)}
+  --q-accent-dark: #{meta.inspect($accent-dark)}
+  --q-positive-light: #{meta.inspect($positive-light)}
